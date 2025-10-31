@@ -53,11 +53,7 @@ while piu_pages and meno_di_10k_works:
         # ciclo fra i works della page
         risultato = page_con_page['results']
         for i, work in enumerate(risultato):
-            openalex_id = work['id'].replace("https://openalex.org/", "")
-
-            url_work = f'https://api.openalex.org/works/{openalex_id}'
-            tutti_dati_work = requests.get(url_work).json()
-            dati_work = {"alex_id": tutti_dati_work["id"], "doi": tutti_dati_work["doi"], "titolo": tutti_dati_work["title"], "anno": tutti_dati_work["publication_year"]}
+            dati_work = {"alex_id": work["id"], "doi": work["doi"], "titolo": work["title"], "anno": work["publication_year"]}
 
             # scrive la riga nel CSV
             writer.writerow(dati_work)
