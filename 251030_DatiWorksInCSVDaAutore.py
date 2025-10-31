@@ -16,7 +16,7 @@ cognome_autore = input("Cognome dell'autore: ")
 alex_id_autore = input("OpenAlex ID dell'autore: ")
 
 # url con un placeholder per il numero di pagina
-url_autore = "https://api.openalex.org/works?filter=author.id:" + alex_id_autore + "&page={}"
+url_autore = "https://api.openalex.org/works?filter=author.id:" + alex_id_autore + "&page={}&per_page=200"
 
 # variabili di controllo del ciclo
 page = 1
