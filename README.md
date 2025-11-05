@@ -7,4 +7,4 @@ Necessary libraries:
 ## Scripts English description
 Code is written and commented in Italian. Here a brief description of the scripts:
 - **251030_DatiWorksInCSVDaAutore.py** - From OpenAlex author id, it uses the works endopint to gets the data for each of their works, then it writes them in a CSV file containing OpenAlex id, DOI, title and publishing date of each work.
-- **251103_DatiWorksInCSVDaInstitution.py** - From OpenAlex institution id, it uses the works endopint to gets the data for each of its works, then it writes them in a CSV file containing OpenAlex id, DOI, title and publishing date of each work.
+- **251103_DatiWorksInCSVDaInstitution.py** - From OpenAlex institution id, it uses the works endopint to get the data for each of for each publication with at least an author affiliated to the institution, then it writes it them in a CSV file containing OpenAlex id, DOI, title and publishing date of each work.
