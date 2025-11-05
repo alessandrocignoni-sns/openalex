@@ -12,26 +12,14 @@ def orario_leggibile(secondi_totali):
     return f"{ore}h {minuti}m {secondi}s"
 
 # dati su istituzione
-nome_istituzione = input("Nome istituzione: ")
+nome_istituzione = input("Nome dell'istituzione: ")
 alex_id_istituzione = input("OpenAlex ID dell'istituzione: ")
-
-# url con un placeholder per il numero di pagina
-url_istituzione = "https://api.openalex.org/works?filter=institutions.id:" + alex_id_istituzione + "&page={}&per_page=200"
-
-# variabili di controllo del ciclo
-page = 1
-piu_pages = True
-meno_di_10k_works = True
-totale_works = 0
 
 # variabili per la scrittura
 data_oggi = datetime.today()
 data_standard = data_oggi.strftime("%y%m%d")
 percorso_file = data_standard + "_" + nome_istituzione +"_Works.csv"
 campi = ["alex_id", "doi", "titolo", "anno"]
-
-# inizio dello script
-inizio = time.perf_counter()
 
 # controllo esistenza del file, eventuale creazione
 esistenza_file = os.path.exists(percorso_file)
@@ -41,18 +29,34 @@ if not esistenza_file:
     writer.writeheader()
     file_csv.flush()
 
-# ciclo fra le pages
-while piu_pages and meno_di_10k_works:
-    try:
+# inizio dello script
+inizio = time.perf_counter()
+
+# url con un placeholder per il numero di pagina
+url_istituzione = "https://api.openalex.org/works?filter=institutions.id:" + alex_id_istituzione
+
+# parametri di paginazione
+page = 1
+totale_works = 0
+
+for anno in range(1950, 2026):
+    page = 1 # reset pagina per ogni anno
+    # url con un placeholder per il numero di pagina
+    url_anno = url_istituzione + f",from_publication_date:{anno}-01-01,to_publication_date:{anno}-12-31"
+    print(f"Pubblicazioni del {anno}.")
+    # ciclo fra le pages
+    while True:
         # imposta il valore di page e richiede la page da OpenAlex
-        url = url_istituzione.format(page)
-        risposta = requests.get(url)
+        url_page = url_anno + f"&page={page}&per_page=200"
+        risposta = requests.get(url_page)
+        if risposta.status_code != 200:
+            print(f"Impossibile recuperare i dati: {risposta.status_code}")
+            break
         risposta.raise_for_status()
-        page_con_page = risposta.json()
-        
-        # ciclo fra i works della page
-        risultato = page_con_page['results']
-        for i, work in enumerate(risultato):
+        tutti_dati = risposta.json()
+            
+        # ciclo i dati rilevanti dei work
+        for i, work in enumerate(tutti_dati['results']):
             dati_work = {"alex_id": work["id"], "doi": work["doi"], "titolo": work["title"], "anno": work["publication_year"]}
 
             # scrive la riga nel CSV
@@ -63,20 +67,13 @@ while piu_pages and meno_di_10k_works:
             tempo_passato = time.perf_counter() - inizio
             totale_works += 1
             print(totale_works, ")", orario_leggibile(round(tempo_passato)),":", dati_work["titolo"])
-            time.sleep(0.5)
-        
-        # chiude il ciclo se non ci sono più works nella page o se ci sono più di 10k works
-        per_page = page_con_page['meta']['per_page']
-        piu_pages = len(risultato) == per_page
-        meno_di_10k_works = per_page * page <= 10000
+            
+        if len(tutti_dati["results"]) < 200:
+                break
 
-    except Exception as e:
-        print(f"Errore catturato: {e}")
-
-    finally:
         page += 1
+        time.sleep(0.5)
     
-
 # scrive i dati in un file CSV
 file_csv.close()
 print("Completato.")
