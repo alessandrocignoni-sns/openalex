@@ -52,7 +52,6 @@ for anno in range(1950, 2026):
         if risposta.status_code != 200:
             print(f"Impossibile recuperare i dati: {risposta.status_code}")
             break
-        risposta.raise_for_status()
         tutti_dati = risposta.json()
             
         # ciclo i dati rilevanti dei work
@@ -77,3 +76,4 @@ for anno in range(1950, 2026):
 # scrive i dati in un file CSV
 file_csv.close()
 print("Completato.")
+
