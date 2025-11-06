@@ -19,7 +19,7 @@ alex_id_istituzione = input("OpenAlex ID dell'istituzione: ")
 data_oggi = datetime.today()
 data_standard = data_oggi.strftime("%y%m%d")
 percorso_file = data_standard + "_" + nome_istituzione +"_Works.csv"
-campi = ["alex_id", "doi", "titolo", "anno"]
+campi = ["author_id", "work_id", "doi", "titolo", "anno"]
 
 # controllo esistenza del file, eventuale creazione
 esistenza_file = os.path.exists(percorso_file)
@@ -67,7 +67,7 @@ while True:
                 
             # ciclo i dati rilevanti dei work
             for i, work in enumerate(tutti_dati['results']):
-                dati_work = {"alex_id": work["id"], "doi": work["doi"], "titolo": work["title"], "anno": work["publication_year"]}
+                dati_work = {"author_id": alex_id_autore, "work_id": work["id"], "doi": work["doi"], "titolo": work["title"], "anno": work["publication_year"]}
 
                 # scrive la riga nel CSV
                 writer.writerow(dati_work)
