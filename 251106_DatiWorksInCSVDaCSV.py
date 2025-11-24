@@ -19,7 +19,7 @@ nome_file = input("Nome del file senza estensione: ")
 data_oggi = datetime.today()
 data_standard = data_oggi.strftime("%y%m%d")
 percorso_file = data_standard + "_" + nome_elenco +"_Works.csv"
-campi = ["codice_fiscale", "work_id", "doi", "titolo", "anno"]
+campi = ["cognome_nome", "work_id", "doi", "titolo", "anno"]
 
 # inizio dello script
 inizio = time.perf_counter()
@@ -32,36 +32,37 @@ if not esistenza_file:
     writer.writeheader()
     file_csv.flush()
 
-# Apri il file CSV e popola la lista dei professori
-lista_prof = []
+# Apri il file CSV e popola la lista degli autori
+lista_autori = []
 with open(nome_file + '.csv', mode='r', newline='', encoding='utf-8-sig') as file:
     reader = csv.DictReader(file)
     contenuto_csv = [riga for riga in reader]
 
 for riga in contenuto_csv:
-    lista_prof.append(riga)
+    lista_autori.append(riga)
 
 # parametri di paginazione
 page = 1
 totale_trovati = 0
 
-# lista professori mancanti in OpenAlex (per ORCID)
-professori_mancanti = []
+# lista degli autori mancanti in OpenAlex (per ORCID)
+autori_mancanti = []
 
-# cicla sui professori, popolando la lista
-for professore in lista_prof:    
+# cicla sugli autori, popolando la lista
+for autore in lista_autori:    
+    cognome_nome = autore['COGNOME'] + " " + autore['NOME']
     # per ogni autore trova l'openalex id
-    url_alex = 'https://api.openalex.org/authors/https://orcid.org/' + professore['orcid']
+    url_alex = 'https://api.openalex.org/authors/https://orcid.org/' + autore['ORCID']
     risposta_alex = requests.get(url_alex)
     if risposta_alex.status_code != 200:
         print(f"Errore {risposta.status_code} da {url_alex}")
-        professori_mancanti.append(professore['codice_fiscale'])
+        autori_mancanti.append(cognome_nome)
         time.sleep(0.5)
     else:
         dati_autore = risposta_alex.json()
         openalex_id = dati_autore['id']
         url_autore = "https://api.openalex.org/works?filter=author.id:" + openalex_id + "&page={}&per_page=200"
-        print('Pubblicazioni di:', professore['codice_fiscale'], '(', openalex_id, ')')
+        print('Pubblicazioni di:', cognome_nome, '(', openalex_id, ')')
         page = 1
 
         # ottiene i work per l'autore
@@ -80,7 +81,7 @@ for professore in lista_prof:
             # ciclo i dati rilevanti delle pubblicazioni
             for i, work in enumerate(tutti_dati["results"]):
                 dati_work = {
-                    "codice_fiscale": professore["codice_fiscale"],
+                    "cognome_nome": cognome_nome,
                     "work_id": work["id"],
                     "doi": work["doi"],
                     "titolo": work["title"],
@@ -106,4 +107,4 @@ for professore in lista_prof:
 # scrive i dati in un file CSV
 file_csv.close()
 print("Completato.")
-print("Professori non trovati in OpenAlex (ORCID):", professori_mancanti)
+print("Professori non trovati in OpenAlex (ORCID):", autori_mancanti)
