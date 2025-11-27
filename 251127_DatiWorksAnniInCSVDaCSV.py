@@ -88,9 +88,14 @@ for autore in lista_autori:
             for i, work in enumerate(tutti_dati["results"]):
                 if work["publication_year"] is not None:
                     if (work["publication_year"] >= anno_inizio and work["publication_year"] <= anno_fine):
+                        if work["doi"] is None:
+                            doi = ""
+                        else:
+                            doi = str(work["doi"]).replace("https://doi.org/", "")
+                        
                         dati_work = {
                             "cognome_nome": cognome_nome,
-                            "doi": work["doi"],
+                            "doi": doi,
                             "titolo": work["title"],
                             "anno": work["publication_year"],
                             "tipo": work["type"],
